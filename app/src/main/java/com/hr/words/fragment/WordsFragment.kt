@@ -50,12 +50,11 @@ class WordsFragment : Fragment() {
         fliterWords.observe(requireActivity(),
             Observer<List<Word2>> {
                 val temp = adapter.itemCount
-                adapter.allWords = it
-                adapterCard.allWords = it
                 if(temp != it.size) {
                     //数据长度发生变化
-                    adapter.notifyDataSetChanged()
-                    adapterCard.notifyDataSetChanged()
+                    //提交的数据列表,会在后台进行差异化比较,根据比对结果,来刷新界面
+                    adapter.submitList(it)
+                    adapterCard.submitList(it)
                 }
             })
 
@@ -84,12 +83,10 @@ class WordsFragment : Fragment() {
                 //删选的liveData的集合数据 观察数据变化
                 fliterWords.observe(requireActivity(),Observer<List<Word2>> {
                     val temp = adapter.itemCount
-                    adapter.allWords = it
-                    adapterCard.allWords = it
                     if(temp != it.size) {
                         //数据长度发生变化
-                        adapter.notifyDataSetChanged()
-                        adapterCard.notifyDataSetChanged()
+                        adapter.submitList(it)
+                        adapterCard.submitList(it)
                     }
                 })
                 //消费事件

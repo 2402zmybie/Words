@@ -7,15 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class MyAdapter(var useCardView: Boolean,var wordViewModel: WordViewModel) : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+class MyAdapter(var useCardView: Boolean, var wordViewModel: WordViewModel) : ListAdapter<Word2, MyAdapter.MyViewHolder>(Word2DiffCallback()) {
 
-    var allWords:List<Word2> = ArrayList()
-        get()  = field
-        set(value) {
-            field = value
-        }
+
+
+    // ListAdapter中不需要对数据进行处理
+//    var allWords:List<Word2> = ArrayList()
+//        get()  = field
+//        set(value) {
+//            field = value
+//        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         //kotlin没有三元表达式
@@ -42,10 +47,9 @@ class MyAdapter(var useCardView: Boolean,var wordViewModel: WordViewModel) : Rec
         return holder
     }
 
-    override fun getItemCount(): Int = allWords.size
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val word2 = allWords.get(position)
+        val word2 = getItem(position)
         //设置数据
         holder.itemView.setTag(R.string.word_for_view_holder, word2)
         holder.textViewNumber.text = position.toString()
@@ -68,4 +72,15 @@ class MyAdapter(var useCardView: Boolean,var wordViewModel: WordViewModel) : Rec
         var textViewChinese:TextView = itemView.findViewById(R.id.textViewChinese);
         var switchChineseInvisible:Switch = itemView.findViewById(R.id.switchChineseInvisible)
     }
+}
+
+class Word2DiffCallback:DiffUtil.ItemCallback<Word2>() {
+    override fun areItemsTheSame(oldItem: Word2, newItem: Word2): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Word2, newItem: Word2): Boolean {
+        return oldItem.word.equals(newItem.word) && oldItem.chineseMeaning.equals(newItem.chineseMeaning) && oldItem.chineseInvisible == newItem.chineseInvisible
+    }
+
 }
