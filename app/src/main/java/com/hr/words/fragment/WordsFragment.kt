@@ -7,11 +7,12 @@ import android.widget.SearchView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.SPUtils
 import com.hr.words.MyAdapter
@@ -37,12 +38,26 @@ class WordsFragment : Fragment() {
         adapter = MyAdapter(false, wordViewModel)
         adapterCard = MyAdapter(true, wordViewModel)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        var viewType =
+        val viewType =
             SPUtils.getInstance().getBoolean(ConstVarage.IS_USING_CARD_VIEW, false)
         if(viewType) {
             recyclerView.adapter = adapterCard
         }else {
             recyclerView.adapter = adapter
+        }
+        //
+        recyclerView.itemAnimator = object :DefaultItemAnimator() {
+            override fun onAnimationFinished(viewHolder: RecyclerView.ViewHolder) {
+                super.onAnimationFinished(viewHolder)
+                val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val findFirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition()
+                val findLastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
+                //遍历findFirstVisibleItemPosition到findLastVisibleItemPosition
+                for(i in findFirstVisibleItemPosition..findLastVisibleItemPosition) {
+                    val holder = recyclerView.findViewHolderForAdapterPosition(i) as MyAdapter.MyViewHolder
+                    holder.textViewNumber.text = (i + 1).toString()
+                }
+            }
         }
 
         fliterWords = wordViewModel.allWordsLive
@@ -52,6 +67,8 @@ class WordsFragment : Fragment() {
                 val temp = adapter.itemCount
                 if(temp != it.size) {
                     //数据长度发生变化
+                    //插入数据之后 滚动
+                    recyclerView.smoothScrollBy(0, -200)
                     //提交的数据列表,会在后台进行差异化比较,根据比对结果,来刷新界面
                     adapter.submitList(it)
                     adapterCard.submitList(it)
@@ -68,7 +85,7 @@ class WordsFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.mmain_menu, menu)
         //search
-        var searchView = menu.findItem(R.id.search).actionView as SearchView
+        val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.maxWidth = 700
         searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
@@ -110,7 +127,7 @@ class WordsFragment : Fragment() {
                     .show()
             }
             R.id.switchViewType -> {
-                var viewType =
+                val viewType =
                     SPUtils.getInstance().getBoolean(ConstVarage.IS_USING_CARD_VIEW, false)
                 if(viewType) {
                     recyclerView.adapter = adapter

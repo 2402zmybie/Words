@@ -66,6 +66,14 @@ class MyAdapter(var useCardView: Boolean, var wordViewModel: WordViewModel) : Li
         }
     }
 
+    /**
+     * viewholder出现在屏幕上的回调
+     */
+    override fun onViewAttachedToWindow(holder: MyViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        holder.textViewNumber.text = (holder.adapterPosition + 1).toString()
+    }
+
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var textViewNumber:TextView = itemView.findViewById(R.id.textViewNumber);
         var textViewEnglish:TextView = itemView.findViewById(R.id.textViewEnglish);
